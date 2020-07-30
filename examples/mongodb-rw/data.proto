@@ -1,0 +1,43 @@
+syntax="proto3";
+package main;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+import "pmongo/objectid.proto";
+
+message Data{
+    pmongo.ObjectId id = 1 [(gogoproto.moretags) = "bson:\"_id,omitempty\"" ];
+
+    bool boolValue = 2;
+    google.protobuf.BoolValue boolProtoValue = 3;
+
+    bytes bytesValue = 4;
+    google.protobuf.BytesValue bytesProtoValue = 5;
+
+    double doubleValue = 6;
+    google.protobuf.DoubleValue doubleProtoValue = 7;
+
+    float floatValue = 8;
+    google.protobuf.FloatValue floatProtoValue = 9;
+
+    int32 int32Value = 10;
+    google.protobuf.Int32Value int32ProtoValue = 11;
+
+    int64 int64Value = 12;
+    google.protobuf.Int64Value int64ProtoValue = 13;
+
+    string stringValue = 14;
+    google.protobuf.StringValue stringProtoValue = 15;
+
+    uint32 uint32Value = 16;
+    google.protobuf.UInt32Value uint32ProtoValue = 17;
+
+    uint64 uint64Value = 18;
+    google.protobuf.UInt64Value uint64ProtoValue = 19;
+
+    google.protobuf.Timestamp timestamp = 20;
+
+    google.protobuf.ListValue listvalue = 21;
+}

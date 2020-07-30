@@ -1,0 +1,33 @@
+syntax="proto3";
+package test;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+import "pmongo/objectid.proto";
+
+message Data{
+    google.protobuf.BoolValue boolValue = 1;
+
+    google.protobuf.BytesValue bytesValue = 2;
+
+    google.protobuf.DoubleValue doubleValue = 3;
+
+    google.protobuf.FloatValue floatValue = 4;
+
+    google.protobuf.Int32Value int32Value = 5;
+
+    google.protobuf.Int64Value int64Value = 6;
+
+    google.protobuf.StringValue stringValue = 7;
+
+    google.protobuf.UInt32Value uint32Value = 8;
+
+    google.protobuf.UInt64Value uint64Value = 9;
+
+    google.protobuf.Timestamp timestamp = 10;
+
+    pmongo.ObjectId id = 11;
+
+    google.protobuf.ListValue listvalue = 12;
+}
