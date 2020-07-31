@@ -88,7 +88,11 @@ type valueCodec struct{}
 func (e *valueCodec) EncodeValue(ectx bsoncodec.EncodeContext, vw bsonrw.ValueWriter, val reflect.Value) error {
 	val = reflect.Indirect(val)
 	val = val.Field(0)
-	enc, err := ectx.LookupEncoder(val.Type())
+	if val.Kind() == reflect.Interface {
+		v := val.Interface()
+		val = reflect.ValueOf(v)
+	}
+	enc, err := ectx.LookupEncoder(val.Elem().Type())
 	if err != nil {
 		return err
 	}
@@ -99,13 +103,20 @@ func (e *valueCodec) EncodeValue(ectx bsoncodec.EncodeContext, vw bsonrw.ValueWr
 func (d *valueCodec) DecodeValue(ectx bsoncodec.DecodeContext, vr bsonrw.ValueReader, val reflect.Value) error {
 	val = reflect.Indirect(val)
 	x := val.Field(0)
-	enc, err := ectx.LookupDecoder(x.Type())
+	cvt, ok := convFromType[vr.Type()]
+	if !ok {
+		return errors.New(fmt.Sprintf("mgd-proto: Unexpected Type: %+v\n", vr.Type()))
+	}
+	decoder, err := ectx.LookupDecoder(cvt)
 	if err != nil {
 		return err
 	}
-	if err := enc.DecodeValue(ectx, vr, x); err != nil {
+	elem := reflect.New(cvt)
+	err = decoder.DecodeValue(ectx, vr, elem)
+	if err != nil {
 		return err
 	}
+	x.Set(elem)
 	return nil
 }
 
@@ -130,16 +141,11 @@ func (e *listValueCodec) EncodeValue(ectx bsoncodec.EncodeContext, vw bsonrw.Val
 			}
 			v = v.Elem()
 		}
-		if v.Type() == tValue {
-			v = v.Field(0)
-		}
-		x := v.Interface()
-		t := reflect.TypeOf(x).Elem()
-		enc, err := ectx.LookupEncoder(t)
+		enc, err := ectx.LookupEncoder(v.Type())
 		if err != nil {
 			return err
 		}
-		err = enc.EncodeValue(ectx, vw, reflect.ValueOf(x))
+		err = enc.EncodeValue(ectx, vw, v)
 		if err != nil {
 			return err
 		}
@@ -164,21 +170,21 @@ func (d *listValueCodec) DecodeValue(ectx bsoncodec.DecodeContext, vr bsonrw.Val
 		if err != nil {
 			return err
 		}
-		cvt, ok := convFromType[vr.Type()]
-		if !ok {
-			return errors.New(fmt.Sprintf("mgd-proto: Unexpected Type: %+v\n", vr.Type()))
-		}
-		decoder, err := ectx.LookupDecoder(cvt)
-		if err != nil {
-			return err
-		}
-		elem := reflect.New(cvt)
-		err = decoder.DecodeValue(ectx, vr, elem)
-		if err != nil {
-			return err
-		}
+		// cvt, ok := convFromType[vr.Type()]
+		// if !ok {
+		// 	return errors.New(fmt.Sprintf("mgd-proto: Unexpected Type: %+v\n", vr.Type()))
+		// }
 		target := reflect.New(tValue).Elem()
-		target.Field(0).Set(elem)
+		decoder, err := ectx.LookupDecoder(tValue)
+		if err != nil {
+			return err
+		}
+		// elem := reflect.New(cvt)
+		err = decoder.DecodeValue(ectx, vr, target)
+		if err != nil {
+			return err
+		}
+		// target.Field(0).Set(target)
 		elems = append(elems, target)
 	}
 
@@ -207,12 +213,12 @@ func (e *wrapperValueCodec) EncodeValue(ectx bsoncodec.EncodeContext, vw bsonrw.
 // DecodeValue decodes BSON value to Protobuf type wrapper value
 func (e *wrapperValueCodec) DecodeValue(ectx bsoncodec.DecodeContext, vr bsonrw.ValueReader, val reflect.Value) error {
 	val = reflect.Indirect(val)
-	val = val.Field(0)
-	enc, err := ectx.LookupDecoder(val.Type())
+	x := val.Field(0)
+	enc, err := ectx.LookupDecoder(x.Type())
 	if err != nil {
 		return err
 	}
-	return enc.DecodeValue(ectx, vr, val)
+	return enc.DecodeValue(ectx, vr, x)
 }
 
 // timestampCodec is codec for Protobuf Timestamp
@@ -299,12 +305,13 @@ func Register(rb *bsoncodec.RegistryBuilder) *bsoncodec.RegistryBuilder {
 		RegisterCodec(timestampType, timestampCodecRef).
 		RegisterCodec(objectIDType, objectIDCodecRef).
 		RegisterCodec(tListValueType, listValueCodecRef).
-		RegisterCodec(tValue_StringValue, valueCodecRef).
-		RegisterCodec(tValue_NullValue, valueCodecRef).
-		RegisterCodec(tValue_NumberValue, valueCodecRef).
-		RegisterCodec(tValue_BoolValue, valueCodecRef).
-		RegisterCodec(tValue_StructValue, valueCodecRef).
-		RegisterCodec(tValue_ListValue, valueCodecRef).
-		RegisterCodec(tNullValue, nullValueCodecRef)
-
+		RegisterCodec(tValue_StringValue, wrapperValueCodecRef).
+		RegisterCodec(tValue_NullValue, wrapperValueCodecRef).
+		RegisterCodec(tValue_NumberValue, wrapperValueCodecRef).
+		RegisterCodec(tValue_BoolValue, wrapperValueCodecRef).
+		RegisterCodec(tValue_StructValue, wrapperValueCodecRef).
+		RegisterCodec(tValue_ListValue, wrapperValueCodecRef).
+		RegisterCodec(tStruct, wrapperValueCodecRef).
+		RegisterCodec(tNullValue, nullValueCodecRef).
+		RegisterCodec(tValue, valueCodecRef)
 }

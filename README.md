@@ -10,7 +10,7 @@ This is extension for officional MongoDB Go driver adds support for Google proto
 
 ## Description
 
-It contains set of BSON marshal/unmarshal codecs for Google protocol buffers type wrappers, Timestamp and MongoDB ObjectID:
+It contains set of BSON marshal/unmarshal codecs for Google protocol buffers type json listvalue, value, wrappers, Timestamp and MongoDB ObjectID:
 
 - `BoolValue`
 - `BytesValue`
@@ -23,7 +23,8 @@ It contains set of BSON marshal/unmarshal codecs for Google protocol buffers typ
 - `Uint64Value`
 - `Timestamp`
 - `ObjectID`
-- `ListValue`(Value_Struct not suport)
+- `ListValue`
+- `Value`
 
 ## Links
 

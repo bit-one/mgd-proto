@@ -65,14 +65,14 @@ func TestCodecs(t *testing.T) {
 				&types.Value{Kind: &types.Value_NumberValue{NumberValue: 1.0}},
 				&types.Value{Kind: &types.Value_BoolValue{BoolValue: false}},
 				&types.Value{Kind: &types.Value_NullValue{NullValue: types.NullValue_NULL_VALUE}},
-				// &types.Value{Kind: &types.Value_StructValue{
-				// 	StructValue: &types.Struct{
-				// 		Fields: map[string]*types.Value{
-				// 			"helo": &types.Value{Kind: &types.Value_StringValue{StringValue: "world"}},
-				// 			"gee":  &types.Value{Kind: &types.Value_NumberValue{NumberValue: 3.0}},
-				// 		},
-				// 	},
-				// }},
+				&types.Value{Kind: &types.Value_StructValue{
+					StructValue: &types.Struct{
+						Fields: map[string]*types.Value{
+							"helo": &types.Value{Kind: &types.Value_StringValue{StringValue: "world"}},
+							"gee":  &types.Value{Kind: &types.Value_NumberValue{NumberValue: 3.0}},
+						},
+					},
+				}},
 				&types.Value{Kind: &types.Value_ListValue{
 					ListValue: &types.ListValue{
 						Values: []*types.Value{
