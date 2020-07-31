@@ -48,9 +48,9 @@ type Data struct {
 	Uint64ProtoValue     *types.UInt64Value `protobuf:"bytes,19,opt,name=uint64ProtoValue,proto3" json:"uint64ProtoValue,omitempty"`
 	Timestamp            *types.Timestamp   `protobuf:"bytes,20,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	Listvalue            *types.ListValue   `protobuf:"bytes,21,opt,name=listvalue,proto3" json:"listvalue,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
-	XXX_unrecognized     []byte             `json:"-"`
-	XXX_sizecache        int32              `json:"-"`
+	XXX_NoUnkeyedLiteral struct{}           `json:"-" bson:"-"`
+	XXX_unrecognized     []byte             `json:"-" bson:"-"`
+	XXX_sizecache        int32              `json:"-" bson:"-"`
 }
 
 func (m *Data) Reset()         { *m = Data{} }
